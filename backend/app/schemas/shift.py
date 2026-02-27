@@ -34,11 +34,17 @@ class ShiftResponse(BaseModel):
     id: UUID
     bar_id: UUID
     staff_id: UUID
+    staff_name: Optional[str] = None
+    opened_by: Optional[UUID] = None
+    opened_by_name: Optional[str] = None
+    closed_by: Optional[UUID] = None
+    closed_by_name: Optional[str] = None
     start_time: datetime
     end_time: Optional[datetime]
     status: ShiftStatus
     notes: Optional[str]
     created_at: datetime
+    duration_hours: Optional[float] = None
     stock_counts: list[ShiftStockCountResponse] = []
 
     class Config:
@@ -48,3 +54,30 @@ class ShiftResponse(BaseModel):
 class ShiftListResponse(BaseModel):
     shifts: list[ShiftResponse]
     total: int
+
+
+class DailyShiftEntry(BaseModel):
+    id: UUID
+    staff_id: UUID
+    staff_name: str
+    opened_by: Optional[UUID] = None
+    opened_by_name: Optional[str] = None
+    closed_by: Optional[UUID] = None
+    closed_by_name: Optional[str] = None
+    start_time: datetime
+    end_time: Optional[datetime]
+    status: ShiftStatus
+    notes: Optional[str]
+    duration_hours: Optional[float] = None
+    sales_count: int = 0
+
+    class Config:
+        from_attributes = True
+
+
+class DailyShiftsResponse(BaseModel):
+    date: str
+    shifts: list[DailyShiftEntry]
+    total_shifts: int
+    total_hours_worked: float
+    open_shifts_count: int

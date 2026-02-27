@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,11 +7,11 @@ from app.database import get_db
 from app.models import User, UserRole, Bar
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, TokenResponse,
-    UserResponse, CreateStaffRequest,
+    UserResponse, CreateStaffRequest, UpdateStaffRequest,
 )
 from app.middleware.auth import (
     hash_password, verify_password, create_access_token,
-    get_current_user, require_manager,
+    get_current_user, require_manager, require_owner,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -127,9 +128,79 @@ async def list_staff(
     current_user: User = Depends(require_manager),
     db: AsyncSession = Depends(get_db),
 ):
-    """List all staff for the current bar."""
+    """List all staff for the current bar (Manager+ only)."""
     result = await db.execute(
         select(User).where(User.bar_id == current_user.bar_id).order_by(User.full_name)
     )
     users = result.scalars().all()
     return [UserResponse.model_validate(u) for u in users]
+
+
+@router.get("/staff/{user_id}", response_model=UserResponse)
+async def get_staff_member(
+    user_id: uuid.UUID,
+    current_user: User = Depends(require_manager),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a single staff member (Manager+ only)."""
+    result = await db.execute(
+        select(User).where(User.id == user_id, User.bar_id == current_user.bar_id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return UserResponse.model_validate(user)
+
+
+@router.patch("/staff/{user_id}", response_model=UserResponse)
+async def update_staff_member(
+    user_id: uuid.UUID,
+    data: UpdateStaffRequest,
+    current_user: User = Depends(require_owner),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update a staff member's role, active status, or name (Owner only)."""
+    result = await db.execute(
+        select(User).where(User.id == user_id, User.bar_id == current_user.bar_id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.role == UserRole.OWNER:
+        raise HTTPException(status_code=403, detail="Cannot modify another owner account")
+
+    if data.role is not None:
+        if data.role == UserRole.OWNER:
+            raise HTTPException(status_code=403, detail="Cannot promote to Owner role")
+        user.role = data.role
+
+    if data.is_active is not None:
+        user.is_active = data.is_active
+
+    if data.full_name is not None:
+        user.full_name = data.full_name
+
+    await db.flush()
+    return UserResponse.model_validate(user)
+
+
+@router.delete("/staff/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def deactivate_staff_member(
+    user_id: uuid.UUID,
+    current_user: User = Depends(require_owner),
+    db: AsyncSession = Depends(get_db),
+):
+    """Deactivate (soft-delete) a staff member (Owner only)."""
+    result = await db.execute(
+        select(User).where(User.id == user_id, User.bar_id == current_user.bar_id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.role == UserRole.OWNER:
+        raise HTTPException(status_code=403, detail="Cannot deactivate an owner account")
+
+    user.is_active = False
+    await db.flush()

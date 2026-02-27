@@ -5,6 +5,7 @@ export interface User {
   role: 'staff' | 'manager' | 'owner';
   bar_id: string;
   is_active: boolean;
+  created_at: string;
 }
 
 export interface Bar {
@@ -89,12 +90,42 @@ export interface Shift {
   id: string;
   bar_id: string;
   staff_id: string;
+  staff_name?: string;
+  opened_by?: string;
+  opened_by_name?: string;
+  closed_by?: string;
+  closed_by_name?: string;
   start_time: string;
   end_time?: string;
   status: 'open' | 'closed';
   notes?: string;
   created_at: string;
+  duration_hours?: number;
   stock_counts: ShiftStockCount[];
+}
+
+export interface DailyShiftEntry {
+  id: string;
+  staff_id: string;
+  staff_name: string;
+  opened_by?: string;
+  opened_by_name?: string;
+  closed_by?: string;
+  closed_by_name?: string;
+  start_time: string;
+  end_time?: string;
+  status: 'open' | 'closed';
+  notes?: string;
+  duration_hours?: number;
+  sales_count: number;
+}
+
+export interface DailyShiftsResponse {
+  date: string;
+  shifts: DailyShiftEntry[];
+  total_shifts: number;
+  total_hours_worked: number;
+  open_shifts_count: number;
 }
 
 export interface SalesRecord {

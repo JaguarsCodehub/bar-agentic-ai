@@ -5,6 +5,7 @@ from sqlalchemy import String, DateTime, Numeric, Enum, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
+from typing import Optional
 
 
 class ShiftStatus(str, enum.Enum):
@@ -18,6 +19,8 @@ class Shift(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     bar_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("bars.id"), nullable=False)
     staff_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    opened_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    closed_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     start_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     end_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     status: Mapped[ShiftStatus] = mapped_column(Enum(ShiftStatus), default=ShiftStatus.OPEN)
@@ -26,7 +29,9 @@ class Shift(Base):
 
     # Relationships
     bar = relationship("Bar", back_populates="shifts")
-    staff = relationship("User")
+    staff = relationship("User", foreign_keys=[staff_id])
+    opener = relationship("User", foreign_keys=[opened_by])
+    closer = relationship("User", foreign_keys=[closed_by])
     stock_counts = relationship("ShiftStockCount", back_populates="shift", cascade="all, delete-orphan")
     sales_records = relationship("SalesRecord", back_populates="shift", cascade="all, delete-orphan")
 

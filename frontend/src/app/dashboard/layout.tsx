@@ -6,20 +6,22 @@ import { useEffect } from 'react';
 import {
   Wine, LayoutDashboard, Package, Truck, ShoppingCart,
   ArrowLeftRight, Clock, DollarSign, AlertTriangle,
-  FileText, LogOut, ChevronRight
+  FileText, LogOut, ChevronRight, Users, CalendarDays,
 } from 'lucide-react';
 import Link from 'next/link';
 
-const menuItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Products', href: '/dashboard/products', icon: Package },
-  { label: 'Suppliers', href: '/dashboard/suppliers', icon: Truck },
-  { label: 'Purchase Orders', href: '/dashboard/purchase-orders', icon: ShoppingCart },
-  { label: 'Stock Movements', href: '/dashboard/stock', icon: ArrowLeftRight },
-  { label: 'Shifts', href: '/dashboard/shifts', icon: Clock },
-  { label: 'Sales', href: '/dashboard/sales', icon: DollarSign },
-  { label: 'Loss Reports', href: '/dashboard/loss-reports', icon: AlertTriangle },
-  { label: 'Reconciliation', href: '/dashboard/reconciliation', icon: FileText },
+const allMenuItems = [
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['staff', 'manager', 'owner'] },
+  { label: 'Products', href: '/dashboard/products', icon: Package, roles: ['staff', 'manager', 'owner'] },
+  { label: 'Suppliers', href: '/dashboard/suppliers', icon: Truck, roles: ['manager', 'owner'] },
+  { label: 'Purchase Orders', href: '/dashboard/purchase-orders', icon: ShoppingCart, roles: ['manager', 'owner'] },
+  { label: 'Stock Movements', href: '/dashboard/stock', icon: ArrowLeftRight, roles: ['staff', 'manager', 'owner'] },
+  { label: 'Shifts', href: '/dashboard/shifts', icon: Clock, roles: ['staff', 'manager', 'owner'] },
+  { label: 'Daily Shifts', href: '/dashboard/daily-shifts', icon: CalendarDays, roles: ['manager', 'owner'] },
+  { label: 'Sales', href: '/dashboard/sales', icon: DollarSign, roles: ['staff', 'manager', 'owner'] },
+  { label: 'Loss Reports', href: '/dashboard/loss-reports', icon: AlertTriangle, roles: ['manager', 'owner'] },
+  { label: 'Reconciliation', href: '/dashboard/reconciliation', icon: FileText, roles: ['manager', 'owner'] },
+  { label: 'Team', href: '/dashboard/team', icon: Users, roles: ['manager', 'owner'] },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -45,6 +47,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
     );
   }
+
+  const menuItems = allMenuItems.filter(item => item.roles.includes(user.role));
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
