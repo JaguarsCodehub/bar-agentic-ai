@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { Shift, Product, User } from '@/types';
 import { Play, Square, Clock, X, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
 
 function formatDuration(startTime: string, endTime?: string): string {
   if (!endTime) return '—';
@@ -190,46 +191,42 @@ export default function ShiftsPage() {
           </div>
         )}
 
-      {/* Open Shift Modal */}
-      {showOpenModal && (
-        <div className="modal-overlay" onClick={() => setShowOpenModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 500, maxHeight: '80vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>Open New Shift</h2>
-              <button onClick={() => setShowOpenModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
-            <p style={{ color: '#8b8b9e', fontSize: 13, marginBottom: 16 }}>Enter opening stock counts for each product:</p>
-            <form onSubmit={openShift}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                {products.map(p => (
-                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ flex: 1, fontSize: 13 }}>{p.name}</span>
-                    <input type="number" step="0.01" value={counts[p.id] || ''}
-                      onChange={e => setCounts({ ...counts, [p.id]: e.target.value })}
-                      placeholder="0" style={{ width: 100, textAlign: 'center' }} />
-                  </div>
-                ))}
+      <Modal 
+        isOpen={showOpenModal} 
+        onClose={() => setShowOpenModal(false)} 
+        title="Open New Shift"
+        maxWidth={500}
+      >
+        <p style={{ color: '#8b8b9e', fontSize: 13, marginBottom: 16 }}>Enter opening stock counts for each product:</p>
+        <form onSubmit={openShift}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20, maxHeight: '50vh', overflowY: 'auto', paddingRight: 4 }}>
+            {products.map(p => (
+              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ flex: 1, fontSize: 13 }}>{p.name}</span>
+                <input type="number" step="0.01" value={counts[p.id] || ''}
+                  onChange={e => setCounts({ ...counts, [p.id]: e.target.value })}
+                  placeholder="0" style={{ width: 100, textAlign: 'center' }} />
               </div>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowOpenModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Open Shift</button>
-              </div>
-            </form>
+            ))}
           </div>
-        </div>
-      )}
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="btn-secondary" onClick={() => setShowOpenModal(false)} style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }}>Open Shift</button>
+          </div>
+        </form>
+      </Modal>
 
-      {/* Close Shift Modal */}
-      {showCloseModal && selectedShift && (
-        <div className="modal-overlay" onClick={() => setShowCloseModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 500, maxHeight: '80vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>Close Shift</h2>
-              <button onClick={() => setShowCloseModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
+      <Modal 
+        isOpen={showCloseModal && !!selectedShift} 
+        onClose={() => setShowCloseModal(false)} 
+        title="Close Shift"
+        maxWidth={500}
+      >
+        {selectedShift && (
+          <>
             <p style={{ color: '#8b8b9e', fontSize: 13, marginBottom: 16 }}>Enter closing stock counts. Reconciliation will run automatically.</p>
             <form onSubmit={closeShift}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20, maxHeight: '50vh', overflowY: 'auto', paddingRight: 4 }}>
                 {selectedShift.stock_counts.map(sc => (
                   <div key={sc.product_id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <span style={{ flex: 1, fontSize: 13 }}>{getProductName(sc.product_id)}
@@ -246,9 +243,9 @@ export default function ShiftsPage() {
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Close & Reconcile</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

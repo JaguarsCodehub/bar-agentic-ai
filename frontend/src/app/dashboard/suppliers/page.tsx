@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import { Supplier } from '@/types';
 import { Plus, X, Edit2, Trash2, Truck, Mail, Phone, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -83,34 +84,31 @@ export default function SuppliersPage() {
         </div>
       )}
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>{editItem ? 'Edit Supplier' : 'Add Supplier'}</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Company Name *</label>
-                <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Contact Person</label>
-                <input value={form.contact_person} onChange={e => setForm({...form, contact_person: e.target.value})} /></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Phone</label>
-                  <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} /></div>
-                <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Email</label>
-                  <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} /></div>
-              </div>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Address</label>
-                <textarea value={form.address} onChange={e => setForm({...form, address: e.target.value})} rows={2} /></div>
-              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>{editItem ? 'Update' : 'Add Supplier'}</button>
-              </div>
-            </form>
+      <Modal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        title={editItem ? 'Edit Supplier' : 'Add Supplier'}
+        maxWidth={480}
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Company Name *</label>
+            <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Contact Person</label>
+            <input value={form.contact_person} onChange={e => setForm({...form, contact_person: e.target.value})} /></div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Phone</label>
+              <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} /></div>
+            <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Email</label>
+              <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} /></div>
           </div>
-        </div>
-      )}
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Address</label>
+            <textarea value={form.address} onChange={e => setForm({...form, address: e.target.value})} rows={2} /></div>
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }}>{editItem ? 'Update' : 'Add Supplier'}</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

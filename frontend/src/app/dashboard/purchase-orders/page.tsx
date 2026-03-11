@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import { PurchaseOrder, Supplier, Product } from '@/types';
 import { Plus, X, Package, Check, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
 
 export default function PurchaseOrdersPage() {
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
@@ -30,7 +31,17 @@ export default function PurchaseOrdersPage() {
   const removeItem = (i: number) => setForm({ ...form, items: form.items.filter((_, idx) => idx !== i) });
   const updateItem = (i: number, field: string, value: string) => {
     const items = [...form.items];
-    items[i] = { ...items[i], [field]: value };
+    const newItem = { ...items[i], [field]: value };
+    
+    // If selecting a product, also auto-populate the cost price
+    if (field === 'product_id' && value) {
+      const product = products.find(p => p.id === value);
+      if (product) {
+        newItem.unit_cost = product.cost_price.toString();
+      }
+    }
+    
+    items[i] = newItem;
     setForm({ ...form, items });
   };
 
@@ -109,49 +120,46 @@ export default function PurchaseOrdersPage() {
         </div>
       )}
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 640 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>New Purchase Order</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Supplier *</label>
-                <select value={form.supplier_id} onChange={e => setForm({...form, supplier_id: e.target.value})} required>
-                  <option value="">Select supplier</option>
-                  {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', fontWeight: 600 }}>Order Items</label>
-                  <button type="button" onClick={addItem} style={{ background: 'none', border: 'none', color: '#a29bfe', cursor: 'pointer', fontSize: 13 }}>+ Add Item</button>
-                </div>
-                {form.items.map((item, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: 8, marginBottom: 8 }}>
-                    <select value={item.product_id} onChange={e => updateItem(i, 'product_id', e.target.value)} required>
-                      <option value="">Select product</option>
-                      {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                    <input type="number" placeholder="Qty" value={item.quantity} onChange={e => updateItem(i, 'quantity', e.target.value)} required />
-                    <input type="number" step="0.01" placeholder="Cost" value={item.unit_cost} onChange={e => updateItem(i, 'unit_cost', e.target.value)} required />
-                    {form.items.length > 1 && (
-                      <button type="button" onClick={() => removeItem(i)} style={{ background: 'none', border: 'none', color: '#ff6b6b', cursor: 'pointer', padding: 8 }}><X size={14} /></button>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Notes</label>
-                <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Create Order</button>
-              </div>
-            </form>
+      <Modal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        title="New Purchase Order"
+        maxWidth={640}
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Supplier *</label>
+            <select value={form.supplier_id} onChange={e => setForm({...form, supplier_id: e.target.value})} required>
+              <option value="">Select supplier</option>
+              {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
           </div>
-        </div>
-      )}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <label style={{ fontSize: 12, color: '#8b8b9e', fontWeight: 600 }}>Order Items</label>
+              <button type="button" onClick={addItem} style={{ background: 'none', border: 'none', color: '#a29bfe', cursor: 'pointer', fontSize: 13 }}>+ Add Item</button>
+            </div>
+            {form.items.map((item, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: 8, marginBottom: 8 }}>
+                <select value={item.product_id} onChange={e => updateItem(i, 'product_id', e.target.value)} required>
+                  <option value="">Select product</option>
+                  {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+                <input type="number" placeholder="Qty" value={item.quantity} onChange={e => updateItem(i, 'quantity', e.target.value)} required />
+                <input type="number" step="0.01" placeholder="Cost" value={item.unit_cost} onChange={e => updateItem(i, 'unit_cost', e.target.value)} required />
+                {form.items.length > 1 && (
+                  <button type="button" onClick={() => removeItem(i)} style={{ background: 'none', border: 'none', color: '#ff6b6b', cursor: 'pointer', padding: 8 }}><X size={14} /></button>
+                )}
+              </div>
+            ))}
+          </div>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Notes</label>
+            <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }}>Create Order</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

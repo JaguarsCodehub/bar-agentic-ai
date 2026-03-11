@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     CORS_ORIGINS: str = "http://localhost:3000"
     MAX_IMAGE_SIZE: int = 5 * 1024 * 1024  # 5MB
+    OPENAI_API_KEY: str | None = None
 
     class Config:
         env_file = ".env"

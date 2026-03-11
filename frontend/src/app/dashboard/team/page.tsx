@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { User } from '@/types';
 import { Users, Plus, X, Shield, UserCheck, UserX, Edit2, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
 
 const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
   owner: { bg: 'rgba(108, 92, 231, 0.15)', text: '#a29bfe' },
@@ -251,59 +252,50 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* Create User Modal */}
-      {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 460 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <div>
-                <h2 style={{ fontSize: 20, fontWeight: 700 }}>Add Team Member</h2>
-                <p style={{ fontSize: 13, color: '#8b8b9e', marginTop: 4 }}>Create a new account with access to BarPulse</p>
-              </div>
-              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={createUser} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Full Name</label>
-                <input required value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })}
-                  placeholder="e.g. Raj Sharma" />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email Address</label>
-                <input required type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                  placeholder="e.g. raj@yourbar.com" />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
-                <input required type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                  placeholder="Minimum 6 characters" minLength={6} />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role</label>
-                <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
-                  <option value="staff">Staff — Can open/close shifts and log stock</option>
-                  {isOwner && <option value="manager">Manager — Can view reports and manage products</option>}
-                </select>
-                <p style={{ fontSize: 11, color: '#8b8b9e', marginTop: 6 }}>
-                  {form.role === 'manager'
-                    ? '🔑 Manager can view all reports and loss data for this bar.'
-                    : '👤 Staff can log stock movements and open/close their own shifts.'}
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowCreateModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={submitting}>
-                  {submitting ? 'Creating...' : 'Create Account'}
-                </button>
-              </div>
-            </form>
+      <Modal 
+        isOpen={showCreateModal} 
+        onClose={() => setShowCreateModal(false)} 
+        title="Add Team Member"
+        maxWidth={460}
+      >
+        <p style={{ fontSize: 13, color: '#8b8b9e', marginBottom: 20 }}>Create a new account with access to BarPulse</p>
+        <form onSubmit={createUser} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Full Name</label>
+            <input required value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })}
+              placeholder="e.g. Raj Sharma" />
           </div>
-        </div>
-      )}
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email Address</label>
+            <input required type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+              placeholder="e.g. raj@yourbar.com" />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
+            <input required type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+              placeholder="Minimum 6 characters" minLength={6} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#8b8b9e', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role</label>
+            <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
+              <option value="staff">Staff — Can open/close shifts and log stock</option>
+              {isOwner && <option value="manager">Manager — Can view reports and manage products</option>}
+            </select>
+            <p style={{ fontSize: 11, color: '#8b8b9e', marginTop: 6 }}>
+              {form.role === 'manager'
+                ? '🔑 Manager can view all reports and loss data for this bar.'
+                : '👤 Staff can log stock movements and open/close their own shifts.'}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button type="button" className="btn-secondary" onClick={() => setShowCreateModal(false)} style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={submitting}>
+              {submitting ? 'Creating...' : 'Create Account'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import { StockMovement, Product } from '@/types';
 import { Plus, X, ArrowLeftRight, ArrowDown, ArrowUp } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
 
 const REASONS = ['delivery', 'wastage', 'breakage', 'theft', 'adjustment', 'return', 'other'];
 
@@ -83,41 +84,37 @@ export default function StockPage() {
         </div>
       )}
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>Log Stock Movement</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Type *</label>
-                  <select value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
-                    <option value="IN">Stock IN</option><option value="OUT">Stock OUT</option>
-                  </select></div>
-                <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Reason *</label>
-                  <select value={form.reason} onChange={e => setForm({...form, reason: e.target.value})}>
-                    {REASONS.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
-                  </select></div>
-              </div>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Product *</label>
-                <select value={form.product_id} onChange={e => setForm({...form, product_id: e.target.value})} required>
-                  <option value="">Select product</option>
-                  {products.map(p => <option key={p.id} value={p.id}>{p.name} (stock: {p.current_stock})</option>)}
-                </select></div>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Quantity *</label>
-                <input type="number" step="0.01" value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} required /></div>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Notes</label>
-                <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Log Movement</button>
-              </div>
-            </form>
+      <Modal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        title="Log Stock Movement"
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Type *</label>
+              <select value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+                <option value="IN">Stock IN</option><option value="OUT">Stock OUT</option>
+              </select></div>
+            <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Reason *</label>
+              <select value={form.reason} onChange={e => setForm({...form, reason: e.target.value})}>
+                {REASONS.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+              </select></div>
           </div>
-        </div>
-      )}
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Product *</label>
+            <select value={form.product_id} onChange={e => setForm({...form, product_id: e.target.value})} required>
+              <option value="">Select product</option>
+              {products.map(p => <option key={p.id} value={p.id}>{p.name} (stock: {p.current_stock})</option>)}
+            </select></div>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Quantity *</label>
+            <input type="number" step="0.01" value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} required /></div>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Notes</label>
+            <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }}>Log Movement</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

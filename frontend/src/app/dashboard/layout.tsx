@@ -6,12 +6,13 @@ import { useEffect } from 'react';
 import {
   Wine, LayoutDashboard, Package, Truck, ShoppingCart,
   ArrowLeftRight, Clock, DollarSign, AlertTriangle,
-  FileText, LogOut, ChevronRight, Users, CalendarDays,
+  FileText, LogOut, ChevronRight, Users, CalendarDays, Bot
 } from 'lucide-react';
 import Link from 'next/link';
 
 const allMenuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['staff', 'manager', 'owner'] },
+  { label: 'AI Agent', href: '/dashboard/ai', icon: Bot, roles: ['manager', 'owner'] },
   { label: 'Products', href: '/dashboard/products', icon: Package, roles: ['staff', 'manager', 'owner'] },
   { label: 'Suppliers', href: '/dashboard/suppliers', icon: Truck, roles: ['manager', 'owner'] },
   { label: 'Purchase Orders', href: '/dashboard/purchase-orders', icon: ShoppingCart, roles: ['manager', 'owner'] },

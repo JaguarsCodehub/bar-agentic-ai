@@ -19,6 +19,7 @@ from app.routers import (
     reconciliation,
     loss_reports,
     dashboard,
+    ai,
 )
 
 settings = get_settings()
@@ -75,6 +76,7 @@ app.include_router(sales_records.router, prefix=API_PREFIX)
 app.include_router(reconciliation.router, prefix=API_PREFIX)
 app.include_router(loss_reports.router, prefix=API_PREFIX)
 app.include_router(dashboard.router, prefix=API_PREFIX)
+app.include_router(ai.router, prefix=API_PREFIX)
 
 
 @app.get("/")

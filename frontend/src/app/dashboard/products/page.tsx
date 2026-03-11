@@ -6,6 +6,7 @@ import { Product } from '@/types';
 import { Plus, Search, Package, Upload, X, Edit2, Trash2, AlertTriangle, ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
+import Modal from '@/components/Modal';
 
 const CATEGORIES = ['spirits', 'rum', 'beer', 'wine', 'mixers', 'cocktails', 'other'];
 const UNITS = ['bottle', 'ml', 'pint', 'can', 'keg'];
@@ -228,95 +229,89 @@ export default function ProductsPage() {
       )}
 
       {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>{editProduct ? 'Edit Product' : 'Add New Product'}</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* Image Upload */}
-              <div {...getRootProps()} style={{
-                border: `2px dashed ${isDragActive ? '#6c5ce7' : 'var(--color-border)'}`,
-                borderRadius: 12, padding: 24, textAlign: 'center', cursor: 'pointer',
-                background: isDragActive ? 'rgba(108,92,231,0.05)' : 'transparent',
-                transition: 'all 0.2s ease',
-              }}>
-                <input {...getInputProps()} />
-                {imagePreview ? (
-                  <div style={{ position: 'relative' }}>
-                    <img src={imagePreview} alt="Preview" style={{ maxHeight: 120, borderRadius: 8, objectFit: 'cover' }} />
-                    <button type="button" onClick={(e) => { e.stopPropagation(); setImageFile(null); setImagePreview(null); }}
-                      style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#ff6b6b', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <X size={12} />
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <Upload size={28} style={{ margin: '0 auto 8px', color: '#8b8b9e' }} />
-                    <p style={{ fontSize: 13, color: '#8b8b9e' }}>
-                      {isDragActive ? 'Drop image here' : 'Drag & drop product image, or click to browse'}
-                    </p>
-                    <p style={{ fontSize: 11, color: '#666', marginTop: 4 }}>JPG, PNG, WebP — max 5MB</p>
-                  </div>
-                )}
+      <Modal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        title={editProduct ? 'Edit Product' : 'Add New Product'}
+        maxWidth={560}
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Image Upload */}
+          <div {...getRootProps()} style={{
+            border: `2px dashed ${isDragActive ? '#6c5ce7' : 'var(--color-border)'}`,
+            borderRadius: 12, padding: 24, textAlign: 'center', cursor: 'pointer',
+            background: isDragActive ? 'rgba(108,92,231,0.05)' : 'transparent',
+            transition: 'all 0.2s ease',
+          }}>
+            <input {...getInputProps()} />
+            {imagePreview ? (
+              <div style={{ position: 'relative' }}>
+                <img src={imagePreview} alt="Preview" style={{ maxHeight: 120, borderRadius: 8, objectFit: 'cover' }} />
+                <button type="button" onClick={(e) => { e.stopPropagation(); setImageFile(null); setImagePreview(null); }}
+                  style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#ff6b6b', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <X size={12} />
+                </button>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Product Name *</label>
-                  <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Jameson Irish Whiskey" required />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Category *</label>
-                  <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Unit *</label>
-                  <select value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })}>
-                    {UNITS.map(u => <option key={u} value={u}>{u.charAt(0).toUpperCase() + u.slice(1)}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Volume (ml)</label>
-                  <input type="number" value={form.volume_ml} onChange={e => setForm({ ...form, volume_ml: e.target.value })} placeholder="750" />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Cost Price (₹) *</label>
-                  <input type="number" step="0.01" value={form.cost_price} onChange={e => setForm({ ...form, cost_price: e.target.value })} placeholder="800" required />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Sale Price (₹) *</label>
-                  <input type="number" step="0.01" value={form.sale_price} onChange={e => setForm({ ...form, sale_price: e.target.value })} placeholder="1200" required />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Current Stock</label>
-                  <input type="number" step="0.01" value={form.current_stock} onChange={e => setForm({ ...form, current_stock: e.target.value })} placeholder="0" />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Min Stock Alert</label>
-                  <input type="number" step="0.01" value={form.min_stock_threshold} onChange={e => setForm({ ...form, min_stock_threshold: e.target.value })} placeholder="5" />
-                </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Description</label>
-                  <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Optional product description..." rows={2} />
-                </div>
+            ) : (
+              <div>
+                <Upload size={28} style={{ margin: '0 auto 8px', color: '#8b8b9e' }} />
+                <p style={{ fontSize: 13, color: '#8b8b9e' }}>
+                  {isDragActive ? 'Drop image here' : 'Drag & drop product image, or click to browse'}
+                </p>
+                <p style={{ fontSize: 11, color: '#666', marginTop: 4 }}>JPG, PNG, WebP — max 5MB</p>
               </div>
-
-              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>{editProduct ? 'Update Product' : 'Add Product'}</button>
-              </div>
-            </form>
+            )}
           </div>
-        </div>
-      )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Product Name *</label>
+              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Jameson Irish Whiskey" required />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Category *</label>
+              <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+                {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Unit *</label>
+              <select value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })}>
+                {UNITS.map(u => <option key={u} value={u}>{u.charAt(0).toUpperCase() + u.slice(1)}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Volume (ml)</label>
+              <input type="number" value={form.volume_ml} onChange={e => setForm({ ...form, volume_ml: e.target.value })} placeholder="750" />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Cost Price (₹) *</label>
+              <input type="number" step="0.01" value={form.cost_price} onChange={e => setForm({ ...form, cost_price: e.target.value })} placeholder="800" required />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Sale Price (₹) *</label>
+              <input type="number" step="0.01" value={form.sale_price} onChange={e => setForm({ ...form, sale_price: e.target.value })} placeholder="1200" required />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Current Stock</label>
+              <input type="number" step="0.01" value={form.current_stock} onChange={e => setForm({ ...form, current_stock: e.target.value })} placeholder="0" />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Min Stock Alert</label>
+              <input type="number" step="0.01" value={form.min_stock_threshold} onChange={e => setForm({ ...form, min_stock_threshold: e.target.value })} placeholder="5" />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4, display: 'block' }}>Description</label>
+              <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Optional product description..." rows={2} />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }}>{editProduct ? 'Update Product' : 'Add Product'}</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

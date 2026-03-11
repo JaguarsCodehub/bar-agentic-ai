@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import { LossReport, Product, LossSummary } from '@/types';
 import { AlertTriangle, X, TrendingDown } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
 
 const REASON_CODES = [
   { value: 'theft', label: 'Theft' },
@@ -118,13 +119,14 @@ export default function LossReportsPage() {
         </div>
       )}
 
-      {showReasonModal && selectedReport && (
-        <div className="modal-overlay" onClick={() => setShowReasonModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700 }}>Assign Reason Code</h2>
-              <button onClick={() => setShowReasonModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
+      <Modal 
+        isOpen={showReasonModal && !!selectedReport} 
+        onClose={() => setShowReasonModal(false)} 
+        title="Assign Reason Code"
+        maxWidth={420}
+      >
+        {selectedReport && (
+          <>
             <p style={{ fontSize: 13, color: '#8b8b9e', marginBottom: 16 }}>
               <strong>{getProductName(selectedReport.product_id)}</strong> — {selectedReport.discrepancy_quantity} units, ₹{selectedReport.loss_value}
             </p>
@@ -141,9 +143,9 @@ export default function LossReportsPage() {
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Resolve</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

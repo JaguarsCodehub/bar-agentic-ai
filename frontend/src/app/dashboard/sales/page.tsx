@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import { SalesRecord, Product, Shift } from '@/types';
 import { Plus, X, DollarSign, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
 
 export default function SalesPage() {
   const [records, setRecords] = useState<SalesRecord[]>([]);
@@ -101,44 +102,41 @@ export default function SalesPage() {
         </div>
       )}
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>Record Sale</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#8b8b9e', cursor: 'pointer' }}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Shift *</label>
-                <select value={form.shift_id} onChange={e => setForm({...form, shift_id: e.target.value})} required>
-                  <option value="">Select shift</option>
-                  {shifts.filter(s => s.status === 'open').map(s => <option key={s.id} value={s.id}>Shift #{s.id.slice(0, 8)} (Open)</option>)}
-                </select></div>
-              <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Product *</label>
-                <select value={form.product_id} onChange={e => {
-                  const prod = products.find(p => p.id === e.target.value);
-                  setForm({...form, product_id: e.target.value, sale_amount: prod ? (parseFloat(form.quantity_sold || '1') * prod.sale_price).toString() : form.sale_amount });
-                }} required>
-                  <option value="">Select product</option>
-                  {products.map(p => <option key={p.id} value={p.id}>{p.name} (₹{p.sale_price})</option>)}
-                </select></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Quantity *</label>
-                  <input type="number" step="0.01" value={form.quantity_sold} onChange={e => {
-                    const prod = products.find(p => p.id === form.product_id);
-                    setForm({...form, quantity_sold: e.target.value, sale_amount: prod ? (parseFloat(e.target.value || '0') * prod.sale_price).toString() : form.sale_amount });
-                  }} required /></div>
-                <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Sale Amount (₹) *</label>
-                  <input type="number" step="0.01" value={form.sale_amount} onChange={e => setForm({...form, sale_amount: e.target.value})} required /></div>
-              </div>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Record Sale</button>
-              </div>
-            </form>
+      <Modal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        title="Record Sale"
+        maxWidth={460}
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Shift *</label>
+            <select value={form.shift_id} onChange={e => setForm({...form, shift_id: e.target.value})} required>
+              <option value="">Select shift</option>
+              {shifts.filter(s => s.status === 'open').map(s => <option key={s.id} value={s.id}>Shift #{s.id.slice(0, 8)} (Open)</option>)}
+            </select></div>
+          <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Product *</label>
+            <select value={form.product_id} onChange={e => {
+              const prod = products.find(p => p.id === e.target.value);
+              setForm({...form, product_id: e.target.value, sale_amount: prod ? (parseFloat(form.quantity_sold || '1') * prod.sale_price).toString() : form.sale_amount });
+            }} required>
+              <option value="">Select product</option>
+              {products.map(p => <option key={p.id} value={p.id}>{p.name} (₹{p.sale_price})</option>)}
+            </select></div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Quantity *</label>
+              <input type="number" step="0.01" value={form.quantity_sold} onChange={e => {
+                const prod = products.find(p => p.id === form.product_id);
+                setForm({...form, quantity_sold: e.target.value, sale_amount: prod ? (parseFloat(e.target.value || '0') * prod.sale_price).toString() : form.sale_amount });
+              }} required /></div>
+            <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Sale Amount (₹) *</label>
+              <input type="number" step="0.01" value={form.sale_amount} onChange={e => setForm({...form, sale_amount: e.target.value})} required /></div>
           </div>
-        </div>
-      )}
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }}>Record Sale</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
