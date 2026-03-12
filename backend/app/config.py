@@ -16,6 +16,18 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
 
+    def get_database_url(self) -> str:
+        """
+        Handle Render's 'postgres://' vs SQLAlchemy's 'postgresql://' requirements,
+        and ensure '+asyncpg' is present.
+        """
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        if "postgresql://" in url and "+asyncpg" not in url:
+            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
+
 
 @lru_cache()
 def get_settings() -> Settings:
