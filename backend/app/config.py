@@ -19,13 +19,22 @@ class Settings(BaseSettings):
     def get_database_url(self) -> str:
         """
         Handle Render's 'postgres://' vs SQLAlchemy's 'postgresql://' requirements,
-        and ensure '+asyncpg' is present.
+        ensure '+asyncpg' is present, and strip 'sslmode' which asyncpg doesn't support.
         """
         url = self.DATABASE_URL
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         if "postgresql://" in url and "+asyncpg" not in url:
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+        # asyncpg does not support 'sslmode' in the connection string
+        if "?" in url and "sslmode=" in url:
+            from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+            u = urlparse(url)
+            query = parse_qs(u.query)
+            query.pop("sslmode", None)
+            url = urlunparse(u._replace(query=urlencode(query, doseq=True)))
+
         return url
 
 
