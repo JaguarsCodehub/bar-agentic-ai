@@ -21,14 +21,14 @@ export default function PurchaseOrdersPage() {
       const ordRes = await api.get('/purchase-orders').catch(() => ({ data: [] }));
       const supRes = await api.get('/suppliers').catch(() => ({ data: [] }));
       const prodRes = await api.get('/products', { params: { limit: 200 } }).catch(() => ({ data: { products: [] } }));
-      
+
       setOrders(ordRes.data || []);
       setSuppliers(supRes.data || []);
       setProducts(prodRes.data?.products || prodRes.data || []);
-    } catch (err) { 
-      console.error(err); 
-    } finally { 
-      setLoading(false); 
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,7 +37,7 @@ export default function PurchaseOrdersPage() {
   const updateItem = (i: number, field: string, value: string) => {
     const items = [...form.items];
     const newItem = { ...items[i], [field]: value };
-    
+
     // If selecting a product, also auto-populate the cost price
     if (field === 'product_id' && value) {
       const product = products.find(p => p.id === value);
@@ -45,7 +45,7 @@ export default function PurchaseOrdersPage() {
         newItem.unit_cost = product.cost_price.toString();
       }
     }
-    
+
     items[i] = newItem;
     setForm({ ...form, items });
   };
@@ -91,49 +91,49 @@ export default function PurchaseOrdersPage() {
       </div>
 
       {loading ? <p style={{ color: '#8b8b9e', textAlign: 'center', padding: 40 }}>Loading...</p> :
-      orders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 80, color: '#8b8b9e' }}>
-          <ShoppingCart size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
-          <h3 style={{ fontSize: 18, fontWeight: 600, color: '#f0f0f5', marginBottom: 8 }}>No purchase orders yet</h3>
-          <p>Create orders to track supplier deliveries</p>
-        </div>
-      ) : (
-        <div className="glass-card" style={{ overflow: 'hidden' }}>
-          <table className="data-table">
-            <thead><tr><th>Order ID</th><th>Supplier</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody>
-              {orders.map(o => (
-                <tr key={o.id}>
-                  <td style={{ fontFamily: 'monospace', fontSize: 12 }}>#{o.id.slice(0, 8)}</td>
-                  <td>{suppliers.find(s => s.id === o.supplier_id)?.name || 'Unknown'}</td>
-                  <td>{o.items.length} items</td>
-                  <td style={{ fontWeight: 600 }}>₹{o.total_cost.toLocaleString()}</td>
-                  <td>{getStatusBadge(o.status)}</td>
-                  <td style={{ fontSize: 13, color: '#8b8b9e' }}>{new Date(o.created_at).toLocaleDateString()}</td>
-                  <td>
-                    {o.status !== 'received' && o.status !== 'cancelled' && (
-                      <button className="btn-primary" onClick={() => receiveOrder(o.id)}
-                        style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Check size={12} /> Receive
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        orders.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 80, color: '#8b8b9e' }}>
+            <ShoppingCart size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: '#f0f0f5', marginBottom: 8 }}>No purchase orders yet</h3>
+            <p>Create orders to track supplier deliveries</p>
+          </div>
+        ) : (
+          <div className="glass-card" style={{ overflow: 'hidden' }}>
+            <table className="data-table">
+              <thead><tr><th>Order ID</th><th>Supplier</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+              <tbody>
+                {orders.map(o => (
+                  <tr key={o.id}>
+                    <td style={{ fontFamily: 'monospace', fontSize: 12 }}>#{o.id.slice(0, 8)}</td>
+                    <td>{suppliers.find(s => s.id === o.supplier_id)?.name || 'Unknown'}</td>
+                    <td>{o.items.length} items</td>
+                    <td style={{ fontWeight: 600 }}>₹{o.total_cost.toLocaleString()}</td>
+                    <td>{getStatusBadge(o.status)}</td>
+                    <td style={{ fontSize: 13, color: '#8b8b9e' }}>{new Date(o.created_at).toLocaleDateString()}</td>
+                    <td>
+                      {o.status !== 'received' && o.status !== 'cancelled' && (
+                        <button className="btn-primary" onClick={() => receiveOrder(o.id)}
+                          style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <Check size={12} /> Receive
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      <Modal 
-        isOpen={showModal} 
-        onClose={() => setShowModal(false)} 
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
         title="New Purchase Order"
         maxWidth={640}
       >
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Supplier *</label>
-            <select value={form.supplier_id} onChange={e => setForm({...form, supplier_id: e.target.value})} required>
+            <select value={form.supplier_id} onChange={e => setForm({ ...form, supplier_id: e.target.value })} required>
               <option value="">Select supplier</option>
               {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
@@ -158,7 +158,7 @@ export default function PurchaseOrdersPage() {
             ))}
           </div>
           <div><label style={{ fontSize: 12, color: '#8b8b9e', display: 'block', marginBottom: 4 }}>Notes</label>
-            <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
+            <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
           <div style={{ display: 'flex', gap: 12 }}>
             <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} style={{ flex: 1 }}>Cancel</button>
             <button type="submit" className="btn-primary" style={{ flex: 1 }}>Create Order</button>
