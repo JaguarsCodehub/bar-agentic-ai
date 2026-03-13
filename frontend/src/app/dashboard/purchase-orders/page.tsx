@@ -18,13 +18,18 @@ export default function PurchaseOrdersPage() {
   useEffect(() => { loadAll(); }, []);
   const loadAll = async () => {
     try {
-      const [ordRes, supRes, prodRes] = await Promise.all([
-        api.get('/purchase-orders'), api.get('/suppliers'), api.get('/products', { params: { limit: 200 } }),
-      ]);
-      setOrders(ordRes.data);
-      setSuppliers(supRes.data);
-      setProducts(prodRes.data.products);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+      const ordRes = await api.get('/purchase-orders').catch(() => ({ data: [] }));
+      const supRes = await api.get('/suppliers').catch(() => ({ data: [] }));
+      const prodRes = await api.get('/products', { params: { limit: 200 } }).catch(() => ({ data: { products: [] } }));
+      
+      setOrders(ordRes.data || []);
+      setSuppliers(supRes.data || []);
+      setProducts(prodRes.data?.products || prodRes.data || []);
+    } catch (err) { 
+      console.error(err); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const addItem = () => setForm({ ...form, items: [...form.items, { product_id: '', quantity: '', unit_cost: '' }] });

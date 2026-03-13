@@ -26,6 +26,7 @@ class ProductUpdate(BaseModel):
     sale_price: Optional[float] = None
     description: Optional[str] = None
     min_stock_threshold: Optional[float] = None
+    current_stock: Optional[float] = None
     is_active: Optional[bool] = None
 
 
