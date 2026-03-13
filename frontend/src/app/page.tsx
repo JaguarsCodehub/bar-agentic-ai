@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { Wine, ArrowRight, BarChart3, Shield, Zap } from 'lucide-react';
+import { Wine, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -16,7 +16,6 @@ export default function LoginPage() {
   const { login, register, user } = useAuth();
   const router = useRouter();
 
-  // Redirect if already logged in
   if (user) {
     router.push('/dashboard');
     return null;
@@ -42,126 +41,230 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex' }}>
-      {/* Left side — branding */}
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#0a0a0a' }}>
+
+      {/* Left — Video Hero */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(135deg, #0f0f13 0%, #1a1024 50%, #0f0f13 100%)',
+        position: 'relative',
+        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '60px',
-        position: 'relative',
-        overflow: 'hidden'
+        justifyContent: 'flex-end',
+        padding: '48px',
       }}>
-        {/* Decorative gradient orbs */}
+        {/* Background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.55,
+          }}
+        >
+          <source src="/bar.mp4" type="video/mp4" />
+        </video>
+
+        {/* Gradient overlay — bottom fade for text readability */}
         <div style={{
-          position: 'absolute', top: '10%', left: '20%',
-          width: 300, height: 300, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(108,92,231,0.15), transparent 70%)',
-          filter: 'blur(60px)'
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '20%', right: '10%',
-          width: 200, height: 200, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(0,206,201,0.1), transparent 70%)',
-          filter: 'blur(40px)'
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%)',
         }} />
 
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40 }}>
-            <div style={{
-              width: 52, height: 52, borderRadius: 14,
-              background: 'linear-gradient(135deg, #6c5ce7, #a29bfe)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              <Wine size={28} color="white" />
-            </div>
-            <span style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.5px' }}>BarPulse</span>
+        {/* Logo */}
+        <div style={{
+          position: 'absolute',
+          top: 48,
+          left: 48,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          zIndex: 1,
+        }}>
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            background: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Wine size={22} color="#0a0a0a" />
           </div>
+          <span style={{ fontSize: 22, fontWeight: 700, color: '#fff', letterSpacing: '-0.3px' }}>BarPulse</span>
+        </div>
 
-          <h1 style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.15, marginBottom: 20, letterSpacing: '-1px' }}>
-            Stop Losing Revenue<br />
-            <span style={{ background: 'linear-gradient(135deg, #6c5ce7, #00cec9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Start Tracking Every Drop
-            </span>
-          </h1>
-
-          <p style={{ color: '#8b8b9e', fontSize: 18, lineHeight: 1.6, maxWidth: 480, marginBottom: 48 }}>
-            Real-time inventory tracking, automated loss detection, and shift-level reconciliation. Built for bars that refuse to bleed money.
+        {/* Hero copy */}
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 560 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.12em', color: '#aaa', textTransform: 'uppercase', marginBottom: 16 }}>
+            Bar Management, Simplified
           </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[
-              { icon: BarChart3, text: 'Real-time stock & loss dashboards' },
-              { icon: Shield, text: 'Automated discrepancy detection per shift' },
-              { icon: Zap, text: 'Reconciliation in under 2 minutes' },
-            ].map(({ icon: Icon, text }, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#a29bfe' }}>
-                <Icon size={20} />
-                <span style={{ color: '#c8c8d8', fontSize: 15 }}>{text}</span>
-              </div>
-            ))}
-          </div>
+          <h1 style={{
+            fontSize: 52,
+            fontWeight: 800,
+            lineHeight: 1.1,
+            color: '#fff',
+            letterSpacing: '-1.5px',
+            marginBottom: 20,
+          }}>
+            Every Pour.<br />Accounted For.
+          </h1>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)', lineHeight: 1.65, maxWidth: 440 }}>
+            Know exactly where your stock goes — every shift, every bottle, every drop. No more guessing.
+          </p>
         </div>
       </div>
 
-      {/* Right side — form */}
+      {/* Right — Auth form */}
       <div style={{
-        width: 480, display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', padding: '60px',
-        background: 'var(--color-surface)',
-        borderLeft: '1px solid var(--color-border)'
+        width: 460,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: '60px 52px',
+        background: '#111',
+        borderLeft: '1px solid #1f1f1f',
       }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, marginBottom: 8 }}>
-          {isRegister ? 'Create your account' : 'Welcome back'}
-        </h2>
-        <p style={{ color: '#8b8b9e', marginBottom: 32, fontSize: 15 }}>
-          {isRegister ? 'Set up your bar in under a minute' : 'Sign in to your dashboard'}
-        </p>
+        {/* Form header */}
+        <div style={{ marginBottom: 36 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: '#fff', marginBottom: 8, letterSpacing: '-0.3px' }}>
+            {isRegister ? 'Create your account' : 'Sign in to BarPulse'}
+          </h2>
+          <p style={{ color: '#666', fontSize: 14 }}>
+            {isRegister ? 'Set up your bar in under a minute.' : 'Enter your credentials to continue.'}
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {isRegister && (
             <>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#8b8b9e', marginBottom: 6, display: 'block' }}>Full Name</label>
-                <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="John Smith" required />
+                <label style={labelStyle}>Full Name</label>
+                <input
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  placeholder="John Smith"
+                  required
+                  style={inputStyle}
+                />
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#8b8b9e', marginBottom: 6, display: 'block' }}>Bar Name</label>
-                <input value={barName} onChange={e => setBarName(e.target.value)} placeholder="My Bar & Lounge" required />
+                <label style={labelStyle}>Bar Name</label>
+                <input
+                  value={barName}
+                  onChange={e => setBarName(e.target.value)}
+                  placeholder="My Bar & Lounge"
+                  required
+                  style={inputStyle}
+                />
               </div>
             </>
           )}
 
           <div>
-            <label style={{ fontSize: 13, fontWeight: 500, color: '#8b8b9e', marginBottom: 6, display: 'block' }}>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@mybar.com" required />
+            <label style={labelStyle}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="admin@mybar.com"
+              required
+              style={inputStyle}
+            />
           </div>
 
           <div>
-            <label style={{ fontSize: 13, fontWeight: 500, color: '#8b8b9e', marginBottom: 6, display: 'block' }}>Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
+            <label style={labelStyle}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              minLength={6}
+              style={inputStyle}
+            />
           </div>
 
-          <button type="submit" className="btn-primary" disabled={loading}
-            style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 24px', width: '100%' }}>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              padding: '13px 24px',
+              width: '100%',
+              background: loading ? '#333' : '#fff',
+              color: '#0a0a0a',
+              border: 'none',
+              borderRadius: 10,
+              fontSize: 15,
+              fontWeight: 600,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'background 0.15s ease',
+              letterSpacing: '-0.1px',
+            }}
+          >
             {loading ? 'Please wait...' : (
               <>
                 {isRegister ? 'Create Account' : 'Sign In'}
-                <ArrowRight size={18} />
+                <ArrowRight size={17} />
               </>
             )}
           </button>
         </form>
 
         <div style={{ marginTop: 24, textAlign: 'center' }}>
-          <button onClick={() => setIsRegister(!isRegister)}
-            style={{ background: 'none', border: 'none', color: '#a29bfe', cursor: 'pointer', fontSize: 14 }}>
-            {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
+          <button
+            onClick={() => setIsRegister(!isRegister)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#666',
+              cursor: 'pointer',
+              fontSize: 13,
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#666')}
+          >
+            {isRegister ? 'Already have an account? Sign in →' : "Don't have an account? Create one →"}
           </button>
         </div>
       </div>
+
     </div>
   );
 }
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  fontWeight: 500,
+  color: '#888',
+  marginBottom: 6,
+  letterSpacing: '0.02em',
+};
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '11px 14px',
+  background: '#1a1a1a',
+  border: '1px solid #2a2a2a',
+  borderRadius: 9,
+  color: '#fff',
+  fontSize: 14,
+  outline: 'none',
+  boxSizing: 'border-box',
+};
