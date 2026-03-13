@@ -27,12 +27,13 @@ class Settings(BaseSettings):
         if "postgresql://" in url and "+asyncpg" not in url:
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-        # asyncpg does not support 'sslmode' in the connection string
-        if "?" in url and "sslmode=" in url:
+        # asyncpg does not support 'sslmode' or 'channel_binding' in the connection string
+        if "?" in url and ("sslmode=" in url or "channel_binding=" in url):
             from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
             u = urlparse(url)
             query = parse_qs(u.query)
             query.pop("sslmode", None)
+            query.pop("channel_binding", None)
             url = urlunparse(u._replace(query=urlencode(query, doseq=True)))
 
         return url
